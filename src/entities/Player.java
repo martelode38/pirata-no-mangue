@@ -133,11 +133,19 @@ public class Player extends Entity{
 		}else {
 			playerAction = IDLE;
 		}
+
+		if(inAir){
+			if(airSpeed < 0){
+				playerAction = JUMP;
+			}else{
+				playerAction = FALLING;
+			}
+		}
 		
 		if(attacking) {
 			playerAction = ATTACK_1;
 		}
-		
+		 
 		if(startAni != playerAction) {
 			resetAniTick();
 		}
@@ -183,6 +191,9 @@ public class Player extends Entity{
 
 	public void loadlvlData(int[][] lvlData){
 		this.lvlData = lvlData;
+		if(!IsEntityOnFLoor(hitbox, lvlData)){
+			inAir = true;
+		}
 	}
 	
 	public void setAtack(boolean a) {
