@@ -3,11 +3,13 @@ package entities;
 
 import java.awt.Graphics;
 import java.awt.image.BufferedImage;
-import java.io.IOException;
-import java.io.InputStream;
 
-import javax.imageio.ImageIO;
-import static utilz.Constants.Directions.*;
+import main.Game;
+
+import static utilz.HelpMet.*;
+
+import utilz.LoadSave;
+
 import static utilz.Constants.PlayarConstants.*;
 
 public class Player extends Entity{
@@ -16,12 +18,23 @@ public class Player extends Entity{
 	private int aniTick, aniIndex, aniSpeed = 15;
 	private int playerAction = IDLE;
 	private boolean moving = false, attacking = false;
-	private boolean left, right, up, down;
+	private boolean left, right, up, down, jump;
 	private float playerSpeed = 2.0f;
-	
-	public Player(float x, float y) {
-		super(x,y);
+	private int[][] lvlData;
+	private float xDrawOffset = 21 * Game.SCALE;
+	private float yDrawOffset = 4 * Game.SCALE;
+	private float airSpeed = 0f;
+	private float gravity = 0.04f *Game.SCALE;
+	private float jumpSpeed = -2.25f * Game.SCALE;
+	private float fallSpeed = 0.5f * Game.SCALE;
+	private boolean inAir = false;
+
+
+
+	public Player(float x, float y, int width, int height) {
+		super(x,y, width, height);
 		loadAnimation();
+		initHitbox(x, y, 20*Game.SCALE, 28*Game.SCALE);
 	}
 	
 	public void update() {
@@ -33,8 +46,8 @@ public class Player extends Entity{
 	
 	public void render(Graphics g) {
 		
-		g.drawImage(animations[playerAction][aniIndex], (int)x, (int)y, 128, 80, null);
-
+		g.drawImage(animations[playerAction][aniIndex], (int) (hitbox.x - xDrawOffset), (int) (hitbox.y - yDrawOffset), width, height, null);
+		drawHixbox(g);
 	}
 	
 
@@ -43,23 +56,75 @@ public class Player extends Entity{
 		
 		moving = false;
 		
-		if(left && !right) {
-			x-= playerSpeed;
-			moving = true;
-		}else if(right && !left) {
-			x+= playerSpeed;
-			moving = true;
-			
+		if(jump){
+			jump();
 		}
+
+		if(!left && !right && !inAir){
+			return;	
+		}
+
+		float xSpeed = 0;
 		
-		if(up && !down) {
-			y-= playerSpeed;
-			moving = true;
-		}else if(down && !up) {
-			y+= playerSpeed;
-			moving = true;
+		if(left){
+			xSpeed -= playerSpeed;
+		}else if(right && !left){
+			xSpeed += playerSpeed;	
 		}
+		if(!inAir){
+			if(!IsEntityOnFLoor(hitbox, lvlData)){
+				inAir = true;
+			}
+		}
+
+		if(inAir){
+			if(CanMoveHere(hitbox.x, hitbox.y + airSpeed, hitbox.width, hitbox.height, lvlData)){
+			hitbox.y += airSpeed;
+			airSpeed += gravity;
+			updateXPos(xSpeed);
+			}else{
+				hitbox.y = GetEntityPosY(hitbox, airSpeed);
+				if(airSpeed > 0){
+					resetInAir();
+				}else{
+					airSpeed = fallSpeed;
+				}
+				updateXPos(xSpeed);
+			}
+		
+		}else{
+			updateXPos(xSpeed);
+		}
+
+		moving = true;
+	
 	}
+
+
+	
+	private void resetInAir(){
+		inAir = false;
+		airSpeed = 0;
+	}
+
+	private void jump(){
+		if(inAir){
+			return;
+		}
+		inAir = true;
+		airSpeed = jumpSpeed;
+	}
+
+	private void updateXPos(float xSpeed){
+		
+			if(CanMoveHere(hitbox.x+xSpeed,hitbox.y,hitbox.width,hitbox.height,lvlData)){
+			hitbox.x += xSpeed;
+			}else{
+				hitbox.x = GetEntityXPosNextToWall(hitbox, xSpeed);
+			}
+
+	}
+
 
 	private void setAnimation() {
 		int startAni = playerAction;
@@ -75,7 +140,6 @@ public class Player extends Entity{
 		
 		if(startAni != playerAction) {
 			resetAniTick();
-			
 		}
 		
 	}
@@ -104,9 +168,9 @@ public class Player extends Entity{
 	
 	private void loadAnimation() {
 		
-		InputStream is = getClass().getResourceAsStream("/player_sprites.png");
-		try {
-		BufferedImage img = ImageIO.read(is);
+		
+		
+		BufferedImage img = LoadSave.getSprite(LoadSave.PLAYER_SPRITE);
 		
 		animations =  new BufferedImage[9][6];
 		
@@ -114,18 +178,11 @@ public class Player extends Entity{
 		for (int j = 0; j < animations[i].length; j++) {
 			animations[i][j] = img.getSubimage(j*64, i*40, 64, 40);
 			}
-		}
-		
-		}catch (IOException e) {
-			e.printStackTrace();
-		}finally {
-			try {
-				is.close();
-				}catch(IOException e) {
-					e.printStackTrace();
-				}
-		}
-		
+		}	
+	}
+
+	public void loadlvlData(int[][] lvlData){
+		this.lvlData = lvlData;
 	}
 	
 	public void setAtack(boolean a) {
@@ -172,5 +229,8 @@ public class Player extends Entity{
 		this.down = down;
 	}
 	
+	public void setJump(boolean jump){
+		this.jump = jump;
+	}
 	
 }

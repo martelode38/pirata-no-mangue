@@ -3,6 +3,7 @@ package main;
 import java.awt.Graphics;
 
 import entities.Player;
+import levels.LevelManeger;
 
 public class Game implements Runnable{
 	
@@ -11,9 +12,16 @@ public class Game implements Runnable{
 	private Thread gameThread;
 	private final int FPS_SET = 120;
 	private final int UPS_SET = 200;
-	
 	private Player player;
+	private LevelManeger levelManeger;
 
+	public final static int TILES_DEFAULT_SIZE = 32;
+	public final static float SCALE = 1.5f;
+	public final static int TILES_IN_WIDTH = 26;
+	public final static int TILES_IN_HEIGHT = 14;
+	public final static int TILES_SIZE = (int) (TILES_DEFAULT_SIZE * SCALE);
+	public final static int GAME_WIDTH = TILES_SIZE * TILES_IN_WIDTH;
+	public final static int GAME_HEIGHT = TILES_SIZE * TILES_IN_HEIGHT;
 	
 	public Game() {
 		initClasses();
@@ -26,8 +34,9 @@ public class Game implements Runnable{
 	}
 	
 	private void initClasses() {
-		player = new Player(200,200);
-		
+		levelManeger = new LevelManeger(this);
+		player = new Player(200,200, (int) (64 * SCALE), (int) (40 * SCALE));
+		player.loadlvlData(levelManeger.getCurrentlvl().GetLevelData());
 	}
 
 	private void startGameLoop() {
@@ -40,9 +49,13 @@ public class Game implements Runnable{
 	
 	public void update() {
 		player.update();
+		levelManeger.update();
+		
 	}
 	
 	public void render(Graphics g) {
+		
+		levelManeger.draw(g);
 		player.render(g);
 	}
 
@@ -70,7 +83,7 @@ public class Game implements Runnable{
 			long currentTime = System.nanoTime();
 			
 			deltaU += (currentTime - previousTime) / timePErUpdate;
-			deltaF += (currentTime - previousTime) / timePErUpdate;
+			deltaF += (currentTime - previousTime) / timePerFrame;
 			previousTime = currentTime;
 			
 			if(deltaU >= 1) {
