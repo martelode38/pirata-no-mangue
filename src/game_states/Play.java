@@ -40,10 +40,11 @@ public class Play extends State implements StateMethods{
     public void update() {
         levelManeger.update();
         player.update();
-        enemyManager.update();
+        enemyManager.update(levelManeger.getCurrentlvl().GetLevelData(), player);
         checkCloseToBorder();
 
     }
+    
 
     private void checkCloseToBorder() {
         int playerX = (int) player.getHitbox().x;

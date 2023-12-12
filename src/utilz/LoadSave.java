@@ -14,8 +14,7 @@ import main.Game;
 public class LoadSave {
     public static final String PLAYER_SPRITE = "player_sprites.png";
 	public static final String LEVEL_SPRITE = "Terrain.png";
-	public static final String LEVEL_ONE_DATA= "level_one_data.png";
-	public static final String LEVEL_TESTE = "teste4.png";
+	public static final String LEVEL_TESTE = "tela1_enemy.png";
 	public static final String CRABBY_SPRITE = "crabby_sprite.png";
 
 

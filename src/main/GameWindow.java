@@ -14,9 +14,9 @@ public class GameWindow extends JFrame{
 
 		jframe.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		jframe.add(gamePanel);
-		jframe.setLocationRelativeTo(null); //isso e so pra a tela se iniciar no centro sempre
 		jframe.setResizable(false);
 		jframe.pack();
+		jframe.setLocationRelativeTo(null); //isso e so pra a tela se iniciar no centro sempre
 		jframe.setVisible(true);
 		jframe.addWindowFocusListener(new WindowFocusListener() {
 			

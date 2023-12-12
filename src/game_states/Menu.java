@@ -20,7 +20,9 @@ public class Menu extends State implements StateMethods{
     @Override
     public void draw(Graphics g) {
       g.setColor(Color.black);
-      g.drawString("menu", Game.GAME_WIDTH / 2, 200);
+      g.drawString("ENTER TO PLAY!!!!!!!!", Game.GAME_WIDTH / 4, 200);
+       g.drawString("CONTROLS(A == RIGHT, W == JUMP, D == LEFT, CLICK == ATTACK)", Game.GAME_WIDTH / 4, 250);
+        g.drawString("Mate TODOS os caraguejos para passar de fase!", Game.GAME_WIDTH / 4, 300);
         
     }
 
