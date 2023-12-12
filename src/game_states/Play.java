@@ -4,14 +4,24 @@ import java.awt.Graphics;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 
+import entities.EnemyManage;
 import entities.Player;
 import levels.LevelManeger;
 import main.Game;
+import utilz.LoadSave;
 
 public class Play extends State implements StateMethods{
 
     private Player player;
     private LevelManeger levelManeger;
+    private EnemyManage enemyManager;
+    private int xLvlOffset;
+    private int leftBorder = (int) (0.2* Game.GAME_WIDTH);
+    private int rightBorder = (int) (0.8 * Game.GAME_WIDTH);
+    private int lvlTilesWide = LoadSave.GetLevelData()[0].length;
+    private int maxTilesOffset = lvlTilesWide - Game.TILES_IN_WIDTH;
+    private int maxLvlOffset = maxTilesOffset * Game.TILES_SIZE;
+
 
     public Play(Game game){
         super(game);
@@ -20,6 +30,7 @@ public class Play extends State implements StateMethods{
 
     private void initClasses() {
 		levelManeger = new LevelManeger(game);
+        enemyManager = new EnemyManage(this);
 		player = new Player(200,200, (int) (64 * Game.SCALE), (int) (40 * Game.SCALE));
 		player.loadlvlData(levelManeger.getCurrentlvl().GetLevelData() );
 	}
@@ -29,13 +40,34 @@ public class Play extends State implements StateMethods{
     public void update() {
         levelManeger.update();
         player.update();
+        enemyManager.update();
+        checkCloseToBorder();
 
+    }
+
+    private void checkCloseToBorder() {
+        int playerX = (int) player.getHitbox().x;
+        int diff = playerX - xLvlOffset;
+
+        if(diff > rightBorder){
+            xLvlOffset += diff - rightBorder;
+        }else if(diff < leftBorder){
+            xLvlOffset += diff - leftBorder;
+        }
+
+        if(xLvlOffset > maxLvlOffset){
+            xLvlOffset = maxLvlOffset;
+
+        }else if(xLvlOffset < 0){
+            xLvlOffset = 0;
+        }
     }
 
     @Override
     public void draw(Graphics g) {
-        levelManeger.draw(g);
-        player.render(g);
+        levelManeger.draw(g, xLvlOffset);
+        player.render(g, xLvlOffset);
+        enemyManager.draw(g, xLvlOffset);
     }
 
     @Override
