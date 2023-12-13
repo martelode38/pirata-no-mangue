@@ -1,0 +1,3 @@
+Professor, o intuito do jogo era fazer algo estilo o joguinho do fogo e agua
+um rpg de fases de 2 players, mas tive dificuldade em fazer o sistema de passar de fase
+e por eu esta sozinho e ter administrado mal o tempo nao tive tempo de por outro player no jogo.
