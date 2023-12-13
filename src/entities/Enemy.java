@@ -1,8 +1,14 @@
 package entities;
 
 import static utilz.Constants.EnemyConstants.*;
+import static utilz.Constants.PlayarConstants.ATTACK_1;
 import static utilz.HelpMet.*;
+
+import java.awt.geom.Rectangle2D;
+
 import static utilz.Constants.Directions.*;
+import static utilz.Constants.*;
+
 
 import main.Game;
 
@@ -18,11 +24,19 @@ public abstract class Enemy extends Entity {
 	protected int walkDir = LEFT;
 	protected int tileY;
 	protected float attackDistance = Game.TILES_SIZE;
+	protected int  maxHealth;
+	protected int currentHealth;
+	protected boolean active = true;
+	protected boolean attackChecked;
+	
 
 	public Enemy(float x, float y, int width, int height, int enemyType) {
 		super(x, y, width, height);
 		this.enemyType = enemyType;
 		initHitbox(x, y, width, height);
+		maxHealth = GetMaxHealth(enemyType);
+		currentHealth = maxHealth;
+
 
 	}
 
@@ -33,9 +47,17 @@ public abstract class Enemy extends Entity {
 			aniIndex++;
 			if (aniIndex >= GetSpriteAmount(enemyType, enemyState)) {
 				aniIndex = 0;
-				if(enemyState == ATTACK){
-					enemyState = IDLE;
+
+				switch (enemyState) {
+					case ATTACK:
+					case HIT:
+						enemyState = IDLE;
+						break;
+					case DEAD:
+						active = false;
+						break;
 				}
+				
 			}
 		}
 	}
@@ -88,6 +110,15 @@ public abstract class Enemy extends Entity {
 		aniTick = 0;
 		aniIndex = 0;
 	}
+
+	public void hurt(int a){
+		currentHealth -= a;
+		if(currentHealth <= 0){
+			newState(DEAD);
+		}else{
+			newState(HIT);
+		}
+	}
 	
 	protected boolean canSeePlayer(int[][] lvlData, Player player) {
 		int playerTileY = (int) (player.getHitbox().y / Game.TILES_SIZE);
@@ -100,6 +131,13 @@ public abstract class Enemy extends Entity {
 		return false;
 	}
 	
+	protected void checkEnemyHit(Rectangle2D.Float attackBox, Player player){
+		if(attackBox.intersects(player.hitbox)){
+			player.changeHealth(-GetEnemyDano(enemyType));
+		}
+		attackChecked =  true;
+	}
+	
 	protected boolean isPlayerInRange(Player p) {
 		int absValue = (int) Math.abs(p.hitbox.x - hitbox.x);
 		return absValue <= attackDistance * 5;
@@ -108,6 +146,15 @@ public abstract class Enemy extends Entity {
 	protected boolean isPlayerCloseForAttack(Player p){
 		int absValue = (int) Math.abs(p.hitbox.x - hitbox.x);
 		return absValue <= attackDistance;
+	}
+	public void resetEnemy(){
+		hitbox.x = x;
+		hitbox.y = y;
+		firstUpdate = true;
+		currentHealth = maxHealth;
+		newState(IDLE);
+		active = true;
+		fallSpeed = 0;
 	}
 
 	protected void changeWalkDir(){
@@ -124,6 +171,10 @@ public abstract class Enemy extends Entity {
 
 	public int getEnemyState() {
 		return enemyState;
+	}
+
+	public boolean isActive(){
+		return active;
 	}
 
 }

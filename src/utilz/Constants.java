@@ -1,5 +1,7 @@
 package utilz;
 
+import static utilz.Constants.EnemyConstants.CRABBY;
+
 import main.Game;
 
 public class Constants {
@@ -47,6 +49,34 @@ public class Constants {
 		}
 
 	}
+	public static class UI {
+
+		public static class URMButtons {
+			public static final int URM_DEFAULT_SIZE = 56;
+			public static final int URM_SIZE = (int) (URM_DEFAULT_SIZE * Game.SCALE);
+
+		}
+	}
+
+	public static int GetMaxHealth(int enemyType){
+		switch (enemyType) {
+			case CRABBY:
+				return 10;
+				
+		
+			default:
+				return 1;
+		}
+	}
+
+	public static int GetEnemyDano(int enemyType){
+		switch(enemyType){
+			case CRABBY:
+				return 15;
+			default:
+			return 1;
+		}
+	}
 	
 	public static class Directions{
 		public static final int LEFT = 0;
@@ -60,15 +90,18 @@ public class Constants {
 		public static final int RUNNING = 1;
 		public static final int JUMP = 2;
 		public static final int FALLING = 3;
-		public static final int GROUND = 4;
+		public static final int ATTACK_1 = 4;
 		public static final int HIT = 5;
-		public static final int ATTACK_1 = 6;
-		public static final int ATTACK_JUMP = 7;
-		public static final int ATTACK_JUMP2 = 8;
-
+		public static final int DEAD = 6;
+	
+	
 		public static int getSpriteAmount(int player_action) {
 			
 			switch (player_action) {
+			case DEAD:
+
+				return 8;
+			
 			case RUNNING:
 				
 				return 6;
@@ -83,17 +116,11 @@ public class Constants {
 				
 			case JUMP:
 			case ATTACK_1:
-			case ATTACK_JUMP:
-			case ATTACK_JUMP2:
+
 				
 				return 3;
 				
-
-				
-			case GROUND:
-				
-				return 2;
-				
+			case FALLING:
 			default:
 				return 1;
 		
